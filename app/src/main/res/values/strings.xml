@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NaverSearch</string>
+    <string name="common_search_hint">검색어 또는 URL 입력</string>
+</resources>

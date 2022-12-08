@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="default_background">#303032</color>
+
+    <color name="search_hint_color">#7B7B7D</color>
+
+    <color name="main_search_background">#29292B</color>
+    <color name="main_search_border">#29292B</color>
+    <color name="naver_signature_color">#23C85B</color>
+</resources>
