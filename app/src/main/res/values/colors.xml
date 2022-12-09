@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+
+    <color name="default_text">#FF000000</color>
     <color name="default_background">#FFFFFF</color>
 
     <color name="search_hint_color">#7B7B7D</color>

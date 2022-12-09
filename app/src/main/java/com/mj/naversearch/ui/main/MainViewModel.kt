@@ -2,6 +2,7 @@ package com.mj.naversearch.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mj.naversearch.ui.main.MainViewModel.MainEvent.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -13,15 +14,15 @@ class MainViewModel : ViewModel(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
 
-    enum class MainEvent {
-        Searching
+    sealed class MainEvent {
+        object Searching : MainEvent()
     }
 
     private val _uiEvent = MutableSharedFlow<MainEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
-    fun emitEvent(event: MainEvent) {
+    fun searching() {
         launch {
-            _uiEvent.emit(event)
+            _uiEvent.emit(Searching)
         }
     }
 }

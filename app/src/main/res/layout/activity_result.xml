@@ -12,7 +12,52 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/default_background">
+
+        <LinearLayout
+            android:id="@+id/search_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:onClick="@{() -> vm.back()}"
+                android:padding="10dp"
+                android:src="@drawable/naver_logo" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/edit_query"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center|start"
+                android:onClick="@{() -> vm.searching()}"
+                android:text="@{vm.keyword.empty ? @string/common_search_hint : vm.keyword}"
+                android:textColor="@color/default_text"
+                android:textSize="18dp"
+                tools:text="@string/common_search_hint" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:onClick="@{() -> vm.delete()}"
+                android:padding="8dp"
+                android:src="@drawable/ic_cancel"
+                app:visible="@{!vm.keyword.empty}" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_voice" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

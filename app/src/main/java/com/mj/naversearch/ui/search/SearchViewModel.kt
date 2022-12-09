@@ -24,6 +24,10 @@ class SearchViewModel : ViewModel(), CoroutineScope {
 
     val keyword: MutableLiveData<String> = MutableLiveData()
 
+    fun configure(query: String?) {
+        keyword.postValue(query)
+    }
+
     fun search() {
         launch {
             val query = keyword.value?.trim() ?: return@launch

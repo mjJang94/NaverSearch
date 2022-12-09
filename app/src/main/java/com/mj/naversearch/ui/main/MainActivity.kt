@@ -9,7 +9,7 @@ import com.mj.naversearch.ui.common.ktx.invoke
 import com.mj.naversearch.ui.common.ktx.registerForFragmentResult
 import com.mj.naversearch.ui.main.MainViewModel.MainEvent.Searching
 import com.mj.naversearch.ui.result.ResultActivity
-import com.mj.naversearch.ui.search.SearchDialog
+import com.mj.naversearch.ui.search.SearchActivity
 import timber.log.Timber
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
@@ -25,19 +25,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         repeatOnCreated {
             viewModel.uiEvent.collect { event ->
                 when(event){
-                    Searching -> {
-                        showSearchPopup()
-                    }
+                    Searching -> SearchActivity.start(this@MainActivity, null)
                 }
             }
         }
-    }
-
-    private val showSearchPopup = registerForFragmentResult(
-        "POPUP_SEARCH", SearchDialog.Contract()
-    ) { result ->
-        if (result == null) return@registerForFragmentResult
-        Timber.e("** result = ${result.keyword}")
-        ResultActivity.start(this, result.keyword)
     }
 }
