@@ -57,6 +57,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.LIFECYCLE}")
     implementation ("androidx.recyclerview:recyclerview:${Versions.RECYCLERVIEW}")
     implementation ("androidx.paging:paging-runtime-ktx:${Versions.PAGING}")
+    implementation("androidx.collection:collection-ktx:${Versions.COLLECTION}")
 
     implementation ("com.google.android.material:material:${Versions.MATERIAL}")
 

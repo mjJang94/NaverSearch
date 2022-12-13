@@ -17,8 +17,8 @@ enum class StatusBarStyle(
     @ColorRes private val color: Int,
     private val isLight: Boolean? = null,
 ) {
-    DEFAULT(R.color.default_background, null),
-    SEARCH(R.color.default_background, null),
+    DEFAULT(R.color.default_bg, null),
+    SEARCH(R.color.default_bg, null),
     ;
 
     fun apply(owner: Activity) = apply(owner, color, isLight)

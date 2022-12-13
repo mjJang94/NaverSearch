@@ -17,6 +17,7 @@ object Versions {
     const val RECYCLERVIEW = "1.2.1"
     const val PAGING = "3.1.1"
     const val MATERIAL = "1.6.1"
+    const val COLLECTION = "1.2.0"
 
     const val RETROFIT = "2.9.0"
     const val RETROFIT_LOGGING = "4.9.3"

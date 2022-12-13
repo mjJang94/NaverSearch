@@ -13,14 +13,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/default_background">
+        android:background="@color/search_bg">
 
         <LinearLayout
-            android:id="@+id/search_container"
+            android:id="@+id/result_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:gravity="center"
+            android:paddingVertical="5dp"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -41,6 +41,7 @@
                 android:onClick="@{() -> vm.searching()}"
                 android:text="@{vm.keyword.empty ? @string/common_search_hint : vm.keyword}"
                 android:textColor="@color/default_text"
+                android:textColorHint="@color/search_hint_color"
                 android:textSize="18dp"
                 tools:text="@string/common_search_hint" />
 
@@ -59,5 +60,138 @@
                 android:src="@drawable/ic_voice" />
         </LinearLayout>
 
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/naver_signature_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/result_container" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/category_container"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/default_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcy_category"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:foregroundGravity="center_vertical"
+                android:orientation="horizontal"
+                android:overScrollMode="never"
+                android:paddingStart="10dp"
+                android:paddingEnd="0dp"
+                app:callback="@{vm.categoryCallback}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/more"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:resultCategoryItems="@{vm.searchCategoryItem}"
+                tools:listitem="@layout/row_result_category_item" />
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/rcy_category_bg"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/rcy_category"
+                app:layout_constraintHorizontal_bias="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/more"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:onClick="@{() -> vm.more()}"
+                android:padding="5dp"
+                android:src="@drawable/ic_more_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/rcy_category"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/all_category_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/search_bg"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider"
+            app:visible="@{vm.moreCategory}"
+            tools:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcy_all_categories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:overScrollMode="never"
+                android:padding="10dp"
+                app:callback="@{vm.categoryCallback}"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintEnd_toStartOf="@+id/more"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/divider"
+                app:resultCategoryItems="@{vm.searchCategoryItem}"
+                app:spanCount="4"
+                tools:listitem="@layout/row_result_category_item" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/search_hint_color" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:onClick="@{() -> vm.more()}"
+                android:padding="10dp"
+                android:text="닫기"
+                android:textColor="@color/search_hint_color"
+                android:textSize="12dp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcy_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:overScrollMode="never"
+            app:callback="@{vm.contentCallback}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@+id/navigation_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/category_container"
+            app:resultContentItem="@{vm.contentItems}"
+            tools:listitem="@layout/row_news_item" />
+
+        <LinearLayout
+            android:id="@+id/navigation_container"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/search_bg"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
