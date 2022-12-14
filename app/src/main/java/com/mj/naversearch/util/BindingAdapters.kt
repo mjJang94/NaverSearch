@@ -2,7 +2,6 @@ package com.mj.naversearch.util
 
 import android.os.Build
 import android.text.Html
-import android.text.Spanned
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -32,7 +31,6 @@ object BindingAdapters {
     @JvmStatic
     @BindingAdapter("searchAction")
     fun EditText.setSearchActionEvent(event: () -> Unit?) {
-
         setOnEditorActionListener { _, id, _ ->
             var handled = false
 

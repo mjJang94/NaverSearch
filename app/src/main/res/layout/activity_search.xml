@@ -43,7 +43,8 @@
                 android:text="@={vm.keyword}"
                 android:textColor="@color/white"
                 android:textColorHint="@color/search_hint_color"
-                app:searchAction="@{() -> vm.search()}" />
+                android:selection="@{vm.keyword.length()}"
+                app:searchAction="@{() -> vm.search()}"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="45dp"

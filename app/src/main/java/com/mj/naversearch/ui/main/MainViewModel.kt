@@ -2,7 +2,7 @@ package com.mj.naversearch.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mj.naversearch.ui.main.MainViewModel.MainEvent.*
+import com.mj.naversearch.ui.main.MainViewModel.MainEvent.Searching
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
