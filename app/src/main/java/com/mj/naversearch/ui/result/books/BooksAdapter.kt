@@ -1,4 +1,4 @@
-package com.mj.naversearch.ui.result.news
+package com.mj.naversearch.ui.result.books
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,33 +12,33 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.mj.domain.model.news.NewsData
+import com.mj.domain.model.books.BookData
 import com.mj.naversearch.R
-import com.mj.naversearch.databinding.RowNewsItemBinding
+import com.mj.naversearch.databinding.RowBooksItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class NewsAdapter(
+class BooksAdapter(
     private val callback: Callback
-) : PagingDataAdapter<NewsData, NewsAdapter.NewsViewHolder>(Companion) {
+) : PagingDataAdapter<BookData, BooksAdapter.BooksViewHolder>(Companion) {
 
-    companion object : DiffUtil.ItemCallback<NewsData>() {
-        override fun areItemsTheSame(oldItem: NewsData, newItem: NewsData) = oldItem.link == newItem.link
-        override fun areContentsTheSame(oldItem: NewsData, newItem: NewsData) = oldItem == newItem
+    companion object : DiffUtil.ItemCallback<BookData>() {
+        override fun areItemsTheSame(oldItem: BookData, newItem: BookData): Boolean = oldItem.link == newItem.link
+        override fun areContentsTheSame(oldItem: BookData, newItem: BookData): Boolean = oldItem == newItem
     }
 
     interface Callback {
         val coroutineScope: CoroutineScope
         fun onLoadState(size: Int, state: CombinedLoadStates)
-        fun click(item: NewsData)
+        fun click(item: BookData)
     }
 
     object BindingAdapters {
         @JvmStatic
-        @BindingAdapter("newItems", "callback")
-        fun RecyclerView.setItems(data: PagingData<NewsData>?, callback: Callback) {
-            val adapter = adapter as? NewsAdapter ?: NewsAdapter(callback)
+        @BindingAdapter("bookItems", "callback")
+        fun RecyclerView.setItems(data: PagingData<BookData>?, callback: Callback) {
+            val adapter = adapter as? BooksAdapter ?: BooksAdapter(callback)
                 .apply { addLoadStateListener { callback.onLoadState(itemCount, it) } }
                 .also { adapter = it }
             callback.coroutineScope.launch(Dispatchers.Default) {
@@ -47,19 +47,19 @@ class NewsAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BooksViewHolder, position: Int) {
         holder.update(getItem(position) ?: return)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder = parent.run {
-        val binding = DataBindingUtil.inflate<RowNewsItemBinding>(
-            LayoutInflater.from(parent.context), R.layout.row_news_item, this, false
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BooksViewHolder = parent.run {
+        val binding = DataBindingUtil.inflate<RowBooksItemBinding>(
+            LayoutInflater.from(parent.context), R.layout.row_books_item, this, false
         ).apply { lifecycleOwner = findViewTreeLifecycleOwner() }
-        return NewsViewHolder(binding.root) u@{ item ->
+        return BooksViewHolder(binding.root) u@{ item ->
             binding.item = item
             binding.callback = callback
         }
     }
 
-    class NewsViewHolder(itemView: View, val update: (item: NewsData?) -> Unit) : ViewHolder(itemView)
+    class BooksViewHolder(itemView: View, val update: (item: BookData?) -> Unit) : ViewHolder(itemView)
 }

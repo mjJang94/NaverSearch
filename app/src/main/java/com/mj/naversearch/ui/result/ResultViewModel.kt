@@ -1,39 +1,37 @@
 package com.mj.naversearch.ui.result
 
-import androidx.lifecycle.*
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import com.mj.domain.model.news.NewsData
-import com.mj.domain.usecase.GetRemoteSearchUseCase
-import com.mj.naversearch.data.NaverSearchDataSource
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import com.mj.naversearch.util.event
 import com.mj.naversearch.util.hide
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 import kotlin.Int
 import kotlin.String
-import kotlin.arrayOf
 import kotlin.coroutines.CoroutineContext
 import com.mj.naversearch.ui.result.ResultCategoryAdapter as Result
-import com.mj.naversearch.ui.result.news.NewsAdapter as Content
 
-@HiltViewModel
-class ResultViewModel @Inject constructor(
-    private val getRemoteSearchUseCase: GetRemoteSearchUseCase
-) : ViewModel(), CoroutineScope {
+class ResultViewModel : ViewModel(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
+
+    enum class Category(val title: String) {
+        News("뉴스"),
+        Books("도서"),
+        Encyclopedia("백과사전"),
+        QnA("지식in"),
+        Image("이미지");
+
+        companion object {
+            operator fun get(raw: Int?): Category =
+                values().firstOrNull { it.ordinal == raw } ?: News
+        }
+    }
 
     sealed class ResultEvent {
         object Back : ResultEvent()
@@ -44,28 +42,8 @@ class ResultViewModel @Inject constructor(
     val keyword = _keyword.hide()
     fun configure(query: String) {
         _keyword.postValue(query)
+        _selectedCategoryInfo.postValue(query to 0)
     }
-
-    val contentItems: LiveData<PagingData<NewsData>> = _keyword.switchMap {
-        resultLoader(it).flowOn(Dispatchers.Default).cachedIn(this).asLiveData()
-    }
-
-    private fun resultLoader(query: String): Flow<PagingData<NewsData>> =
-        loadRemoteNews(query)
-
-
-    private fun loadRemoteNews(query: String): Flow<PagingData<NewsData>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = NaverSearchDataSource.defaultDisplay,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = {
-                NaverSearchDataSource(query, getRemoteSearchUseCase)
-            }
-        ).flow
-    }
-
 
     private val _uiEvent = MutableSharedFlow<ResultEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
@@ -95,38 +73,38 @@ class ResultViewModel @Inject constructor(
         _moreCategory.postValue(!more)
     }
 
-    private val _contentClick = MutableLiveData<String>()
-    val contentClick = _contentClick.event()
+    private val _openLink = MutableLiveData<String>()
+    val openLink = _openLink.event()
+    fun openLink(link: String) {
+        _openLink.postValue(link)
+    }
 
-    private val _selectedCategory = MutableLiveData(0)
-    private val _categories = arrayOf("뉴스", "View", "이미지", "지식in", "인플루언서", "쇼핑", "지식백과")
-    private val _searchCategory = MutableLiveData(
-        _categories.toList()
+    private val _selectedCategoryInfo = MutableLiveData<Pair<String, Int>>()
+    val selectedCategoryInfo = _selectedCategoryInfo.event()
+
+    private val _searchCategory = MutableLiveData<List<String>>(
+        mutableListOf<String>().apply {
+            (0..5).forEach { index ->
+                add(Category[index].title)
+            }
+        }
     )
     val searchCategoryItem = _searchCategory.map { categories ->
-        categories.mapIndexed { id, category ->
-            id.formalize(category)
+        categories.mapIndexed { id, name ->
+            id.formalize(name)
         }
     }
 
     private fun Int.formalize(name: String) = Result.CategoryItem(
         id = this,
         name = name,
-        selected = _selectedCategory.map { it == this }
+        selected = _selectedCategoryInfo.map { (_, id) -> id == this }
     )
 
     val categoryCallback = object : Result.Callback {
         override fun toggle(id: Int) {
-            Timber.d("toggle id : $id")
-            _selectedCategory.postValue(id)
-        }
-    }
-
-    val contentCallback = object : Content.Callback {
-        override val coroutineScope: CoroutineScope = viewModelScope
-        override fun click(item: NewsData) {
-            Timber.d("click data: $item")
-            _contentClick.postValue(item.link ?: item.originallink)
+            val query = _keyword.value ?: return
+            _selectedCategoryInfo.postValue(query to id)
         }
     }
 }

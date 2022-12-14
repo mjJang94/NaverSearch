@@ -7,7 +7,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
+import com.mj.naversearch.R
 
 
 object BindingAdapters {
@@ -50,6 +54,22 @@ object BindingAdapters {
         } else {
             @Suppress("DEPRECATION")
             text = Html.fromHtml(source)
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter("thumbnailUrl")
+    fun AppCompatImageView.setListThumbnailUrl(url: String?) {
+        if (url == null) {
+            setImageResource(R.drawable.ic_browser_not_supported)
+        } else {
+            Glide.with(context)
+                .load(url)
+                .error(R.drawable.ic_browser_not_supported)
+                .centerCrop()
+                .skipMemoryCache(false)
+                .format(DecodeFormat.PREFER_RGB_565)
+                .into(this)
         }
     }
 }

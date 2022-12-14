@@ -1,7 +1,7 @@
 package com.mj.domain.di
 
 import com.mj.domain.repository.SearchRepository
-import com.mj.domain.usecase.GetRemoteSearchUseCase
+import com.mj.domain.usecase.GetRemoteNewsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,5 +18,5 @@ class UseCaseModule {
 
     @Provides
     @Singleton
-    fun getRemoteNewsUseCase(repository: SearchRepository): GetRemoteSearchUseCase = GetRemoteSearchUseCase(repository)
+    fun getRemoteNewsUseCase(repository: SearchRepository): GetRemoteNewsUseCase = GetRemoteNewsUseCase(repository)
 }

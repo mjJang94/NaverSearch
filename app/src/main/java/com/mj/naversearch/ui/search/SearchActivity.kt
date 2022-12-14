@@ -12,15 +12,19 @@ import com.mj.naversearch.ui.common.style.StatusBarStyle
 import com.mj.naversearch.ui.result.ResultActivity
 import com.mj.naversearch.ui.search.SearchViewModel.SearchEvent.Dismiss
 import com.mj.naversearch.ui.search.SearchViewModel.SearchEvent.Search
+import com.mj.naversearch.util.StringExtra
 import com.mj.naversearch.util.showKeyboard
 import kotlinx.coroutines.CoroutineScope
 
 class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel>(), CoroutineScope {
 
     companion object {
+
+        var Intent.extraQuery by StringExtra("EXTRA_QUERY")
+
         fun start(context: Context, query: String?) {
             val intent = Intent(context, SearchActivity::class.java).apply {
-                putExtra("EXTRA_QUERY", query)
+                extraQuery = query
             }
             context.startActivity(intent)
         }
@@ -39,7 +43,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel>(), C
         binding.vm = viewModel
 
         if (savedInstanceState == null) {
-            val query = intent?.getStringExtra("EXTRA_QUERY")
+            val query = intent?.extraQuery
             viewModel.configure(query)
         }
 

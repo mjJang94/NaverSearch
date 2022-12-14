@@ -1,9 +1,9 @@
-package com.mj.naversearch.ui.result.news
+package com.mj.naversearch.ui.result.books
 
 import androidx.lifecycle.*
 import androidx.paging.*
-import com.mj.domain.model.news.NewsData
-import com.mj.domain.usecase.GetRemoteNewsUseCase
+import com.mj.domain.model.books.BookData
+import com.mj.domain.usecase.GetRemoteBookUseCase
 import com.mj.naversearch.util.event
 import com.mj.naversearch.util.hide
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,11 +14,11 @@ import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
-import com.mj.naversearch.ui.result.news.NewsAdapter as News
+import com.mj.naversearch.ui.result.books.BooksAdapter as Books
 
 @HiltViewModel
-class NewsViewModel @Inject constructor(
-    private val getRemoteNewsUseCase: GetRemoteNewsUseCase
+class BooksViewModel @Inject constructor(
+    private val getRemoteBooksUseCase: GetRemoteBookUseCase
 ) : ViewModel(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -29,21 +29,19 @@ class NewsViewModel @Inject constructor(
         _keyword.postValue(query)
     }
 
-    val newsItems: LiveData<PagingData<NewsData>> = _keyword.switchMap {
-        newsLoader(it).flowOn(Dispatchers.IO).cachedIn(this).asLiveData()
+    val booksItem: LiveData<PagingData<BookData>> = _keyword.switchMap {
+        booksLoader(it).flowOn(Dispatchers.IO).cachedIn(this).asLiveData()
     }
 
-    private fun newsLoader(query: String): Flow<PagingData<NewsData>> =
-        loadRemoteNews(query)
+    private fun booksLoader(query: String): Flow<PagingData<BookData>> = loadRemoteBooks(query)
 
-
-    private fun loadRemoteNews(query: String): Flow<PagingData<NewsData>> = Pager(
+    private fun loadRemoteBooks(query: String): Flow<PagingData<BookData>> = Pager(
         config = PagingConfig(
-            pageSize = NaverNewsDataSource.defaultDisplay,
+            pageSize = NaverBooksDataSource.defaultDisplay,
             enablePlaceholders = false
         ),
         pagingSourceFactory = {
-            NaverNewsDataSource(query, getRemoteNewsUseCase)
+            NaverBooksDataSource(query, getRemoteBooksUseCase)
         }
     ).flow
 
@@ -56,7 +54,7 @@ class NewsViewModel @Inject constructor(
     private val _errorEvent = MutableLiveData<Throwable>()
     val errorEvent = _errorEvent.event()
 
-    val callback = object : News.Callback {
+    val callback = object : Books.Callback {
         override val coroutineScope: CoroutineScope = viewModelScope
         override fun onLoadState(size: Int, state: CombinedLoadStates) {
             when (val s = state.refresh) {
@@ -65,26 +63,26 @@ class NewsViewModel @Inject constructor(
                 else -> {}
             }
         }
-        override fun click(item: NewsData) {
-            _contentClick.postValue(item.link ?: item.originallink)
+        override fun click(item: BookData) {
+            _contentClick.postValue(item.link)
         }
     }
 
-    private class NaverNewsDataSource(
+    private class NaverBooksDataSource(
         private val query: String,
-        private val searchUseCase: GetRemoteNewsUseCase
-    ) : PagingSource<Int, NewsData>() {
-        override fun getRefreshKey(state: PagingState<Int, NewsData>): Int? = state.anchorPosition?.let {
+        private val searchUseCase: GetRemoteBookUseCase
+    ) : PagingSource<Int, BookData>() {
+        override fun getRefreshKey(state: PagingState<Int, BookData>): Int? = state.anchorPosition?.let {
             val closestPageToPosition = state.closestPageToPosition(it)
             closestPageToPosition?.prevKey?.plus(defaultDisplay)
                 ?: closestPageToPosition?.nextKey?.minus(defaultDisplay)
         }
 
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, NewsData> {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, BookData> {
             val start = params.key ?: defaultStart
 
             return try {
-                val response = searchUseCase.searchNews(query, 30, start)
+                val response = searchUseCase.searchBooks(query, 30, start)
                 val nextKey = if (response.isEmpty()) null else start + 1
                 val prevKey = if (start == defaultStart) null else start - defaultDisplay
                 LoadResult.Page(response, prevKey, nextKey)

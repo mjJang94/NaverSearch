@@ -16,19 +16,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseFragment<T : ViewDataBinding, R : ViewModel> : Fragment(), CoroutineScope {
+abstract class BaseFragment<T : ViewDataBinding> : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext = lifecycleScope.coroutineContext
 
     lateinit var binding: T
 
     abstract val layoutResourceId: Int
-    abstract val viewModel: R
-    abstract fun initOnCreateView()
+    abstract fun initOnCreateView(savedInstanceState: Bundle?)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, layoutResourceId, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        initOnCreateView()
+        initOnCreateView(savedInstanceState)
         return binding.root
     }
 

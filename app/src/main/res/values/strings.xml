@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">NaverSearch</string>
     <string name="common_search_hint">검색어 또는 URL 입력</string>
+
+    <string name="books_price">판매가 %s원</string>
+    <string name="books_not_for_sale">판매하지 않음</string>
+    <string name="books_author">저자 %s</string>
+    <string name="books_publisher">출판 %s</string>
+
+    <string name="price_format">%,.2f $</string>
 </resources>
