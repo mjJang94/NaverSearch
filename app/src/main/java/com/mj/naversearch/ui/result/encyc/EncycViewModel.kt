@@ -1,9 +1,9 @@
-package com.mj.naversearch.ui.result.books
+package com.mj.naversearch.ui.result.encyc
 
 import androidx.lifecycle.*
 import androidx.paging.*
-import com.mj.domain.model.books.BookData
-import com.mj.domain.usecase.GetRemoteBookUseCase
+import com.mj.domain.model.encyc.EncycData
+import com.mj.domain.usecase.GetRemoteEncycUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,26 +14,27 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
-import com.mj.naversearch.ui.result.books.BooksAdapter as Books
+import com.mj.naversearch.ui.result.encyc.EncycAdapter as Encyc
 
 @HiltViewModel
-class BooksViewModel @Inject constructor(
-    private val getRemoteBooksUseCase: GetRemoteBookUseCase
+class EncycViewModel @Inject constructor(
+    private val getRemoteEncycUseCase: GetRemoteEncycUseCase
 ) : ViewModel(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
 
-    sealed class BooksEvent {
-        object LoadSuccess : BooksEvent()
-        object ItemsEmpty : BooksEvent()
-        data class OpenLink(val link: String) : BooksEvent()
-        data class LoadError(val error: Throwable) : BooksEvent()
+    sealed class EncycEvent {
+        object LoadSuccess : EncycEvent()
+        object Loading : EncycEvent()
+        object ItemsEmpty : EncycEvent()
+        data class OpenLink(val link: String) : EncycEvent()
+        data class LoadError(val error: Throwable) : EncycEvent()
     }
 
-    private val _uiEvent = MutableSharedFlow<BooksEvent>()
+    private val _uiEvent = MutableSharedFlow<EncycEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
-    fun eventTrigger(event: BooksEvent) {
+    fun eventTrigger(event: EncycEvent) {
         launch {
             _uiEvent.emit(event)
         }
@@ -44,58 +45,60 @@ class BooksViewModel @Inject constructor(
         _keyword.postValue(query)
     }
 
-    val booksItem: LiveData<PagingData<BookData>> = _keyword.switchMap {
-        booksLoader(it).flowOn(Dispatchers.IO).cachedIn(this).asLiveData()
+    val encycItems: LiveData<PagingData<EncycData>> = _keyword.switchMap {
+        encycLoader(it).flowOn(Dispatchers.IO).cachedIn(this).asLiveData()
     }
 
-    private fun booksLoader(query: String): Flow<PagingData<BookData>> = loadRemoteBooks(query)
+    private fun encycLoader(query: String): Flow<PagingData<EncycData>> =
+        loadRemoteNews(query)
 
-    private fun loadRemoteBooks(query: String): Flow<PagingData<BookData>> = Pager(
+
+    private fun loadRemoteNews(query: String): Flow<PagingData<EncycData>> = Pager(
         config = PagingConfig(
-            pageSize = BooksDataSource.defaultDisplay,
+            pageSize = EncycDataSource.defaultDisplay,
             enablePlaceholders = false
         ),
         pagingSourceFactory = {
-            BooksDataSource(query, getRemoteBooksUseCase)
+            EncycDataSource(query, getRemoteEncycUseCase)
         }
     ).flow
 
-    val callback = object : Books.Callback {
+    val callback = object : Encyc.Callback {
         override val coroutineScope: CoroutineScope = viewModelScope
         override fun onLoadState(size: Int, state: CombinedLoadStates) {
             when (val s = state.refresh) {
                 is LoadState.NotLoading -> {
                     val event = when (state.append.endOfPaginationReached && size < 1) {
-                        true -> BooksEvent.ItemsEmpty
-                        else -> BooksEvent.LoadSuccess
+                        true -> EncycEvent.ItemsEmpty
+                        else -> EncycEvent.LoadSuccess
                     }
                     eventTrigger(event)
                 }
-                is LoadState.Error -> eventTrigger(BooksEvent.LoadError(s.error))
-                else -> {}
+                is LoadState.Error -> eventTrigger(EncycEvent.LoadError(s.error))
+                is LoadState.Loading -> eventTrigger(EncycEvent.Loading)
             }
         }
 
-        override fun click(item: BookData) {
-            eventTrigger(BooksEvent.OpenLink(item.link))
+        override fun click(item: EncycData) {
+            eventTrigger(EncycEvent.OpenLink(item.link))
         }
     }
 
-    private class BooksDataSource(
+    private class EncycDataSource(
         private val query: String,
-        private val searchUseCase: GetRemoteBookUseCase
-    ) : PagingSource<Int, BookData>() {
-        override fun getRefreshKey(state: PagingState<Int, BookData>): Int? = state.anchorPosition?.let {
+        private val searchUseCase: GetRemoteEncycUseCase
+    ) : PagingSource<Int, EncycData>() {
+        override fun getRefreshKey(state: PagingState<Int, EncycData>): Int? = state.anchorPosition?.let {
             val closestPageToPosition = state.closestPageToPosition(it)
             closestPageToPosition?.prevKey?.plus(defaultDisplay)
                 ?: closestPageToPosition?.nextKey?.minus(defaultDisplay)
         }
 
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, BookData> {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, EncycData> {
             val start = params.key ?: defaultStart
 
             return try {
-                val response = searchUseCase.searchBooks(query, loadSize, start)
+                val response = searchUseCase.searchEncyc(query, loadSize, start)
                 val nextKey = if (response.items.isEmpty() || start >= (response.total / loadSize)) null else start + 1
                 val prevKey = if (start == defaultStart) null else start - defaultDisplay
                 LoadResult.Page(response.items, prevKey, nextKey)

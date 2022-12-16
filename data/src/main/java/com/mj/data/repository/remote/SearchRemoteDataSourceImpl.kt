@@ -1,6 +1,7 @@
 package com.mj.data.repository.remote
 
 import com.mj.data.model.book.BookResponse
+import com.mj.data.model.encyc.EncyclopediaResponse
 import com.mj.data.model.news.NewsResponse
 import com.mj.data.remote.NaverSearchService
 import javax.inject.Inject
@@ -14,4 +15,8 @@ internal class SearchRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getRemoteBooks(query: String, loadSize: Int, start: Int): BookResponse =
         service.getBooks(query, loadSize, start)
+
+    override suspend fun getEncyclopedia(query: String, loadSize: Int, start: Int): EncyclopediaResponse =
+        service.getEncyclopedia(query, loadSize, start)
+    
 }

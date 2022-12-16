@@ -1,6 +1,7 @@
 package com.mj.data.remote
 
 import com.mj.data.model.book.BookResponse
+import com.mj.data.model.encyc.EncyclopediaResponse
 import com.mj.data.model.news.NewsResponse
 import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET
@@ -21,4 +22,11 @@ interface NaverSearchService {
         @Query("display") display: Int? = null,
         @Query("start") start: Int? = null,
     ): BookResponse
+
+    @GET("/v1/search/encyc.json")
+    suspend fun getEncyclopedia(
+        @Query("query") query: String,
+        @Query("display") display: Int? = null,
+        @Query("start") start: Int? = null,
+    ): EncyclopediaResponse
 }

@@ -1,6 +1,7 @@
 package com.mj.domain.model.books
 
 data class BookData(
+    val total: Int,
     val title: String,
     val link: String,
     val image: String,

@@ -13,6 +13,7 @@ import com.mj.naversearch.ui.result.ResultViewModel.Category.*
 import com.mj.naversearch.ui.result.ResultViewModel.ResultEvent.Back
 import com.mj.naversearch.ui.result.ResultViewModel.ResultEvent.Searching
 import com.mj.naversearch.ui.result.books.BooksFragment
+import com.mj.naversearch.ui.result.encyc.EncycFragment
 import com.mj.naversearch.ui.result.news.NewsFragment
 import com.mj.naversearch.ui.result.news.NewsFragment.Companion.extraQuery
 import com.mj.naversearch.ui.search.SearchActivity
@@ -52,7 +53,7 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultViewModel>() {
                 val compositions: Fragment = when (ResultViewModel.Category[id]) {
                     News -> NewsFragment().apply { putQuery(query) }
                     Books -> BooksFragment().apply { putQuery(query) }
-                    Encyclopedia -> NewsFragment()
+                    Encyclopedia -> EncycFragment().apply { putQuery(query) }
                     QnA -> NewsFragment()
                     Image -> NewsFragment()
                 }

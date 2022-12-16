@@ -1,5 +1,6 @@
 package com.mj.naversearch.util
 
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.Html
 import android.view.View
@@ -56,19 +57,16 @@ object BindingAdapters {
     }
 
     @JvmStatic
-    @BindingAdapter("thumbnailUrl")
-    fun AppCompatImageView.setListThumbnailUrl(url: String?) {
-        if (url == null) {
-            setImageResource(R.drawable.ic_browser_not_supported)
-        } else {
-            Glide.with(context)
-                .load(url)
-                .error(R.drawable.ic_browser_not_supported)
-                .centerCrop()
-                .skipMemoryCache(false)
-                .format(DecodeFormat.PREFER_RGB_565)
-                .into(this)
-        }
+    @BindingAdapter("thumbnailUrl", "defaultErrorImage")
+    fun AppCompatImageView.setListThumbnailUrl(url: String?, applyErrorImage: Boolean?) {
+        if (url == null || applyErrorImage == null) return
+
+        val error = if (applyErrorImage) R.drawable.ic_browser_not_supported else null
+
+        when (error) {
+            null -> Glide.with(context).load(url)
+            else -> Glide.with(context).load(url).error(R.drawable.ic_browser_not_supported)
+        }.override(this.width, this.height).centerCrop().skipMemoryCache(false).format(DecodeFormat.PREFER_RGB_565).into(this)
     }
 }
 

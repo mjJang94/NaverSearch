@@ -4,13 +4,14 @@ import androidx.lifecycle.*
 import androidx.paging.*
 import com.mj.domain.model.news.NewsData
 import com.mj.domain.usecase.GetRemoteNewsUseCase
-import com.mj.naversearch.util.event
-import com.mj.naversearch.util.hide
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import com.mj.naversearch.ui.result.news.NewsAdapter as News
@@ -22,6 +23,21 @@ class NewsViewModel @Inject constructor(
 
     override val coroutineContext: CoroutineContext
         get() = viewModelScope.coroutineContext
+
+    sealed class NewsEvent {
+        object LoadSuccess : NewsEvent()
+        object ItemsEmpty : NewsEvent()
+        data class OpenLink(val link: String) : NewsEvent()
+        data class LoadError(val error: Throwable) : NewsEvent()
+    }
+
+    private val _uiEvent = MutableSharedFlow<NewsEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+    fun eventTrigger(event: NewsEvent) {
+        launch {
+            _uiEvent.emit(event)
+        }
+    }
 
     private val _keyword = MutableLiveData<String>()
     fun configure(query: String?) {
@@ -38,38 +54,36 @@ class NewsViewModel @Inject constructor(
 
     private fun loadRemoteNews(query: String): Flow<PagingData<NewsData>> = Pager(
         config = PagingConfig(
-            pageSize = NaverNewsDataSource.defaultDisplay,
+            pageSize = NewsDataSource.defaultDisplay,
             enablePlaceholders = false
         ),
         pagingSourceFactory = {
-            NaverNewsDataSource(query, getRemoteNewsUseCase)
+            NewsDataSource(query, getRemoteNewsUseCase)
         }
     ).flow
-
-    private val _contentClick = MutableLiveData<String>()
-    val contentClick = _contentClick.event()
-
-    private val _isItemsEmpty = MutableLiveData<Boolean>()
-    val isItemsEmpty = _isItemsEmpty.hide()
-
-    private val _errorEvent = MutableLiveData<Throwable>()
-    val errorEvent = _errorEvent.event()
 
     val callback = object : News.Callback {
         override val coroutineScope: CoroutineScope = viewModelScope
         override fun onLoadState(size: Int, state: CombinedLoadStates) {
             when (val s = state.refresh) {
-                is LoadState.NotLoading -> _isItemsEmpty.postValue(state.append.endOfPaginationReached && size < 1)
-                is LoadState.Error -> _errorEvent.postValue(s.error)
+                is LoadState.NotLoading -> {
+                    val event = when (state.append.endOfPaginationReached && size < 1) {
+                        true -> NewsEvent.ItemsEmpty
+                        else -> NewsEvent.LoadSuccess
+                    }
+                    eventTrigger(event)
+                }
+                is LoadState.Error -> eventTrigger(NewsEvent.LoadError(s.error))
                 else -> {}
             }
         }
+
         override fun click(item: NewsData) {
-            _contentClick.postValue(item.link ?: item.originallink)
+            eventTrigger(NewsEvent.OpenLink(item.link ?: item.originallink))
         }
     }
 
-    private class NaverNewsDataSource(
+    private class NewsDataSource(
         private val query: String,
         private val searchUseCase: GetRemoteNewsUseCase
     ) : PagingSource<Int, NewsData>() {
@@ -83,16 +97,17 @@ class NewsViewModel @Inject constructor(
             val start = params.key ?: defaultStart
 
             return try {
-                val response = searchUseCase.searchNews(query, 30, start)
-                val nextKey = if (response.isEmpty()) null else start + 1
+                val response = searchUseCase.searchNews(query, loadSize, start)
+                val nextKey = if (response.items.isEmpty() || start >= (response.total / loadSize)) null else start + 1
                 val prevKey = if (start == defaultStart) null else start - defaultDisplay
-                LoadResult.Page(response, prevKey, nextKey)
+                LoadResult.Page(response.items, prevKey, nextKey)
             } catch (exception: Exception) {
                 LoadResult.Error(exception)
             }
         }
 
         companion object {
+            const val loadSize = 20
             const val defaultStart = 1
             const val defaultDisplay = 10
         }

@@ -3,9 +3,6 @@ package com.mj.naversearch.util
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 @MainThread
 fun <X> LiveData<X>.hide(): LiveData<X> =

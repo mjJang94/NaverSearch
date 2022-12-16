@@ -26,37 +26,37 @@ abstract class BaseActivity<T : ViewDataBinding, V : ViewModel> : AppCompatActiv
         binding = DataBindingUtil.setContentView(this, layoutResourceId)
         binding.lifecycleOwner = this
         initOnCreate(savedInstanceState)
-        Timber.e("onCreate")
+        Timber.e("${this.localClassName} onCreate")
     }
 
     override fun onStart() {
         super.onStart()
-        Timber.e("onStart")
+        Timber.e("${this.localClassName} onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Timber.e("onResume")
+        Timber.e("${this.localClassName} onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Timber.e("onPause")
+        Timber.e("${this.localClassName} onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Timber.e("onStop")
+        Timber.e("${this.localClassName} onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Timber.e("onDestroy")
+        Timber.e("${this.localClassName} onDestroy")
     }
 
     override fun onRestart() {
         super.onRestart()
-        Timber.e("onRestart")
+        Timber.e("${this.localClassName} onRestart")
     }
 
     protected fun shortShowToast(msg: String) =
